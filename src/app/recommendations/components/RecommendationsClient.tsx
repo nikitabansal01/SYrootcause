@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from '../Recommendations.module.css';
 import { RecommendationResult, UserProfile } from '../../types/ResearchData';
-import { SurveyResponses } from '../../types/SurveyResponses';
 import { ResultsSummary } from '../../types/ResultsSummary';
 
 interface RecommendationsClientProps {
   initialData: {
-    surveyData: SurveyResponses;
+    surveyData: any; // Generic data structure for user inputs
     results: ResultsSummary;
   };
   initialRecommendations?: RecommendationResult | null;
@@ -17,7 +16,7 @@ interface RecommendationsClientProps {
 const RecommendationsClient: React.FC<RecommendationsClientProps> = ({ initialData, initialRecommendations }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [surveyData] = useState<SurveyResponses | null>(initialData.surveyData);
+  const [surveyData] = useState<any | null>(initialData.surveyData);
   const [results] = useState<ResultsSummary | null>(initialData.results);
   const [loading, setLoading] = useState(!initialRecommendations);
   const [activeTab, setActiveTab] = useState<'food' | 'movement' | 'mindfulness'>('food');
@@ -226,9 +225,9 @@ const RecommendationsClient: React.FC<RecommendationsClientProps> = ({ initialDa
         <button onClick={() => router.push('/results')} className={styles.backButton}>
           ← Back to Results
         </button>
-        <button onClick={() => router.push('/survey')} className={styles.restartButton}>
-          🔁 Start Over
-        </button>
+                    <button onClick={() => router.push('/')} className={styles.restartButton}>
+              🔁 Start Over
+            </button>
       </div>
       <div className={styles.disclaimer}>
         <p>

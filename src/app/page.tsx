@@ -1,23 +1,39 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import styles from './Home.module.css'
+import { HormoneBuddiesGroup } from './components/HormoneBuddies'
+import buddyStyles from './components/HormoneBuddies.module.css'
 
 export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <h1 className={styles.title}>Hormone Health Assessment</h1>
-        <p className={styles.description}>
-          Take a quick 8-10 question survey to identify potential hormone imbalances 
-          and get personalized recommendations for better hormonal health.
-        </p>
+        <div className={styles.logoSection}>
+          <Image
+            src="/Logo.png"
+            alt="Hormone Health Platform Logo"
+            width={120}
+            height={60}
+            style={{
+              width: 'auto',
+              height: '60px',
+              marginBottom: '1rem'
+            }}
+            priority
+          />
+        </div>
+        
+        <p className={styles.healingTagline}>Healing starts with understanding your hormones</p>
+        
+        <HormoneBuddiesGroup className={buddyStyles.hormoneBuddiesGroup} />
         <div className={styles.features}>
           <div className={styles.feature}>
             <span className={styles.featureIcon}>📋</span>
-            <span>Quick symptom assessment</span>
+            <span>8-question hormone assessment</span>
           </div>
           <div className={styles.feature}>
             <span className={styles.featureIcon}>🔬</span>
-            <span>Optional lab value analysis</span>
+            <span>Lab value analysis</span>
           </div>
           <div className={styles.feature}>
             <span className={styles.featureIcon}>💡</span>

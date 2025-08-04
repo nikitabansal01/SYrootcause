@@ -1,12 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import styles from '../AdminDashboard.module.css';
-import { SurveyResponses } from '../../types/SurveyResponses';
 import { ResultsSummary } from '../../types/ResultsSummary';
 
 interface UserResponse {
   id: string;
-  surveyData: SurveyResponses;
+  surveyData: any; // Generic data structure for user inputs
   results: ResultsSummary;
   email: string | null;
   timestamp: string;

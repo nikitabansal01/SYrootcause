@@ -2,13 +2,12 @@
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from '../Results.module.css';
-import { SurveyResponses } from '../../types/SurveyResponses';
 import { ResultsSummary } from '../../types/ResultsSummary';
 
 interface ResultsClientProps {
   initialData: {
     id: string;
-    surveyData: SurveyResponses;
+    surveyData: any; // Generic data structure for user inputs
     results: ResultsSummary;
     email: string | null;
     timestamp: string;
@@ -100,9 +99,18 @@ const ResultsClient: React.FC<ResultsClientProps> = ({ initialData }) => {
       estrogen: 'Estrogen',
       thyroid: 'Thyroid',
       cortisol: 'Cortisol',
-      insulin: 'Insulin'
+      insulin: 'Insulin',
+      high_androgens: 'High Androgens',
+      low_progesterone: 'Low Progesterone',
+      estrogen_dominance: 'Estrogen Dominance',
+      high_cortisol: 'High Cortisol',
+      low_cortisol: 'Low Cortisol',
+      insulin_resistance: 'Insulin Resistance',
+      inflammation: 'Inflammation',
+      balanced_hormones: 'Balanced Hormones',
+      general_symptoms: 'General Symptoms'
     };
-    return names[hormone] || hormone;
+    return names[hormone] || hormone.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
   const getHormoneDescription = (hormone: string) => {
     const descriptions: Record<string, string> = {
@@ -111,7 +119,16 @@ const ResultsClient: React.FC<ResultsClientProps> = ({ initialData }) => {
       estrogen: 'Estrogen dominance can cause heavy periods, bloating, and breast tenderness.',
       thyroid: 'Thyroid issues can cause fatigue, weight changes, and mood problems.',
       cortisol: 'High cortisol from stress can affect energy, sleep, and hormone balance.',
-      insulin: 'Insulin resistance can cause sugar cravings, weight gain, and PCOS symptoms.'
+      insulin: 'Insulin resistance can cause sugar cravings, weight gain, and PCOS symptoms.',
+      high_androgens: 'High androgen levels can cause acne, hair loss, and irregular periods.',
+      low_progesterone: 'Low progesterone can cause PMS symptoms, mood swings, and irregular cycles.',
+      estrogen_dominance: 'Estrogen dominance can cause heavy periods, bloating, and breast tenderness.',
+      high_cortisol: 'High cortisol from stress can affect energy, sleep, and hormone balance.',
+      low_cortisol: 'Low cortisol can cause fatigue, low energy, and difficulty managing stress.',
+      insulin_resistance: 'Insulin resistance can cause sugar cravings, weight gain, and PCOS symptoms.',
+      inflammation: 'Inflammation can cause pain, bloating, and various hormonal symptoms.',
+      balanced_hormones: 'Your hormone levels appear to be well-balanced overall.',
+      general_symptoms: 'Some symptoms were reported, but more specific patterns are needed for detailed analysis.'
     };
     return descriptions[hormone] || 'This hormone may be contributing to your symptoms.';
   };
@@ -168,9 +185,9 @@ const ResultsClient: React.FC<ResultsClientProps> = ({ initialData }) => {
           </p>
         </div>
         <div className={styles.actions}>
-          <button className={styles.actionButton} onClick={() => router.push('/survey')}>
-            Take Assessment Again
-          </button>
+                          <button className={styles.actionButton} onClick={() => router.push('/')}>
+                  Start New Assessment
+                </button>
         </div>
       </div>
     );
@@ -321,14 +338,25 @@ const ResultsClient: React.FC<ResultsClientProps> = ({ initialData }) => {
       <div className={styles.actionGroup}>
         <button 
           className={styles.recommendationsButton}
-          onClick={() => router.push(`/recommendations?responseId=${initialData.id}`)}
+          onClick={() => {
+            // If this is a temporary response, pass the data to recommendations
+            const url = new URL(window.location.href);
+            const temp = url.searchParams.get('temp');
+            const data = url.searchParams.get('data');
+            
+            if (temp === 'true' && data) {
+              router.push(`/recommendations?responseId=${initialData.id}&temp=true&data=${data}`);
+            } else {
+              router.push(`/recommendations?responseId=${initialData.id}`);
+            }
+          }}
         >
           🎯 See Personalized Action Plan
         </button>
         <button className={styles.downloadButton} onClick={handleDownloadPDF}>
           📄 Download My Hormone Report (PDF)
         </button>
-        <button className={styles.restartButton} onClick={() => router.push('/survey')}>
+        <button className={styles.restartButton} onClick={() => router.push('/')}>
           🔁 Start Over
         </button>
         {process.env.NODE_ENV === 'development' && (

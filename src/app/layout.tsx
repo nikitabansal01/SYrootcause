@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import Image from 'next/image'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const plusJakartaSans = Plus_Jakarta_Sans({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plus-jakarta-sans'
+})
 
 export const metadata: Metadata = {
   title: 'Hormone Health Assessment',
@@ -17,24 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        {/* Fixed logo at top-left - same as Rootcause project */}
-        <div style={{
-          position: 'absolute',
-          left: '16px',
-          top: '16px',
-          width: '60px',
-          height: '60px',
-          zIndex: 1000
-        }}>
-          <Image 
-            src="/Logo.png" 
-            alt="Logo" 
-            width={60} 
-            height={60}
-            style={{ objectFit: 'contain' }}
-          />
-        </div>
+      <body className={`${plusJakartaSans.variable} ${plusJakartaSans.className}`}>
         {children}
       </body>
     </html>

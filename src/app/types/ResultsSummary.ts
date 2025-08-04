@@ -3,14 +3,12 @@
  * Centralized TypeScript interfaces for analysis results
  */
 
-import { HormoneScores } from './HormoneScores';
-
 export interface AnalysisResult {
   primaryImbalance: string | null;
   secondaryImbalances: string[];
   confidenceLevel: 'low' | 'medium' | 'high';
   explanations: string[];
-  scores: HormoneScores;
+  scores: Record<string, number>; // Generic scores object
   totalScore: number;
   cyclePhase: string;
 }

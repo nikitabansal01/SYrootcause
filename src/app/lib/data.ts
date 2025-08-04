@@ -1,5 +1,4 @@
 import { Redis } from '@upstash/redis';
-import { SurveyResponses } from '../types/SurveyResponses';
 import { ResultsSummary } from '../types/ResultsSummary';
 import { RecommendationResult, UserProfile } from '../types/ResearchData';
 
@@ -32,7 +31,7 @@ export async function getResponseData(responseId: string) {
 
   return responseData as {
     id: string;
-    surveyData: SurveyResponses;
+    surveyData: any; // Generic data structure for user inputs
     results: ResultsSummary;
     email: string | null;
     timestamp: string;
@@ -48,7 +47,7 @@ export async function getAllResponses() {
   const responseIds = await redis.lrange('responses', 0, -1);
   const responses: Array<{
     id: string;
-    surveyData: SurveyResponses;
+    surveyData: any; // Generic data structure for user inputs
     results: ResultsSummary;
     email: string | null;
     timestamp: string;
@@ -61,7 +60,7 @@ export async function getAllResponses() {
       if (responseData) {
         responses.push(responseData as {
           id: string;
-          surveyData: SurveyResponses;
+          surveyData: any; // Generic data structure for user inputs
           results: ResultsSummary;
           email: string | null;
           timestamp: string;
@@ -80,7 +79,7 @@ export async function getAllResponses() {
 }
 
 export async function generateRecommendations(responseData: {
-  surveyData: SurveyResponses;
+  surveyData: any; // Generic data structure for user inputs
   results: ResultsSummary;
 }): Promise<RecommendationResult | null> {
   try {
