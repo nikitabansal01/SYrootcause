@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    // 저장될 데이터 콘솔 출력
     console.log('save-response: responseData to save:', responseData);
 
     console.log('Attempting to save response:', responseId);

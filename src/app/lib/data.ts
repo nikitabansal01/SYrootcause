@@ -26,12 +26,11 @@ export async function getResponseData(responseId: string) {
     throw new Error('Response not found');
   }
 
-  // 불러온 데이터 콘솔 출력
   console.log('getResponseData: loaded from Redis:', responseData);
 
   return responseData as {
     id: string;
-    surveyData: any; // Generic data structure for user inputs
+    surveyData: any;
     results: ResultsSummary;
     email: string | null;
     timestamp: string;
@@ -47,7 +46,7 @@ export async function getAllResponses() {
   const responseIds = await redis.lrange('responses', 0, -1);
   const responses: Array<{
     id: string;
-    surveyData: any; // Generic data structure for user inputs
+    surveyData: any;
     results: ResultsSummary;
     email: string | null;
     timestamp: string;
@@ -60,7 +59,7 @@ export async function getAllResponses() {
       if (responseData) {
         responses.push(responseData as {
           id: string;
-          surveyData: any; // Generic data structure for user inputs
+          surveyData: any;
           results: ResultsSummary;
           email: string | null;
           timestamp: string;
@@ -79,14 +78,14 @@ export async function getAllResponses() {
 }
 
 export async function generateRecommendations(responseData: {
-  surveyData: any; // Generic data structure for user inputs
+  surveyData: any;
   results: ResultsSummary;
 }): Promise<RecommendationResult | null> {
   try {
     const { surveyData, results } = responseData;
     
     const userProfile: UserProfile = {
-      hormoneScores: results.analysis?.scores || {
+      hormoneScores: results.analysis?.scores as any || {
         androgens: 0, progesterone: 0, estrogen: 0, thyroid: 0, cortisol: 0, insulin: 0
       },
       primaryImbalance: results.analysis?.primaryImbalance || '',
@@ -101,32 +100,23 @@ export async function generateRecommendations(responseData: {
       confidence: results.confidenceLevel || 'low'
     };
 
-    const categories: ('food' | 'movement' | 'mindfulness')[] = ['food', 'movement', 'mindfulness'];
-    const recResult: RecommendationResult = {
-      food: [], movement: [], mindfulness: [], userProfile, generatedAt: new Date().toISOString()
-    };
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/llm-recommendations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userProfile,
+        category: 'general'
+      }),
+    });
 
-    // Generate recommendations for each category
-    for (const category of categories) {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/llm-recommendations`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userProfile, category })
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.recommendations) {
-            recResult[category] = data.recommendations;
-          }
-        }
-      } catch (error) {
-        console.error(`Error generating ${category} recommendations:`, error);
-      }
+    if (!res.ok) {
+      throw new Error(`Failed to generate recommendations: ${res.statusText}`);
     }
 
-    return recResult;
+    const recommendationData = await res.json();
+    return recommendationData;
   } catch (error) {
     console.error('Error generating recommendations:', error);
     return null;

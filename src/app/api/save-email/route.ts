@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Redis } from '@upstash/redis';
 
-// Initialize Upstash Redis client with error handling
+// Initialize Upstash Redis client
 let redis: Redis | null = null;
 
 try {
-  redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-  });
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  }
 } catch (error) {
   console.error('Failed to initialize Redis client:', error);
 }
@@ -18,49 +20,44 @@ export async function POST(request: NextRequest) {
   if (!redis) {
     return NextResponse.json({ 
       success: false, 
-      message: 'Database connection not available. Please check environment variables.' 
+      message: 'Database connection not available. Please check environment variables.'
     }, { status: 500 });
   }
 
   try {
-    const { email, responseId, timestamp } = await request.json();
+    const { responseId, email } = await request.json();
 
-    if (!email) {
-      return NextResponse.json({ message: 'Email is required' }, { status: 400 });
+    if (!responseId || !email) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Missing responseId or email' 
+      }, { status: 400 });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ message: 'Invalid email format' }, { status: 400 });
+    // Get the existing response data
+    const responseData = await redis.get(responseId);
+    if (!responseData) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Response not found' 
+      }, { status: 404 });
     }
 
-    // Generate a unique ID for this email entry
-    const emailId = `email_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Save the email data
-    const emailData = {
-      id: emailId,
-      email,
-      responseId: responseId || null,
-      timestamp: timestamp || new Date().toISOString(),
-      createdAt: new Date().toISOString()
+    // Update the response with the email
+    const updatedResponse = {
+      ...responseData,
+      email: email
     };
 
-    // Store in Upstash Redis
-    await redis.set(emailId, emailData);
-    
-    // Also store in a list for easy retrieval
-    await redis.lpush('emails', emailId);
+    // Save the updated response
+    await redis.set(responseId, updatedResponse);
 
-    // If there's a responseId, link the email to the response
-    if (responseId) {
-      await redis.hset(`response_emails:${responseId}`, { email });
-    }
+    // Update email counts
+    await redis.incr('with_email_count');
+    await redis.decr('no_email_count');
 
     return NextResponse.json({ 
       success: true, 
-      emailId,
       message: 'Email saved successfully' 
     });
 

@@ -36,7 +36,7 @@ const RecommendationsClient: React.FC<RecommendationsClientProps> = ({ initialDa
         return;
       }
       const userProfile: UserProfile = {
-        hormoneScores: results.analysis?.scores || {
+        hormoneScores: results.analysis?.scores as any || {
           androgens: 0, progesterone: 0, estrogen: 0, thyroid: 0, cortisol: 0, insulin: 0
         },
         primaryImbalance: results.analysis?.primaryImbalance || '',

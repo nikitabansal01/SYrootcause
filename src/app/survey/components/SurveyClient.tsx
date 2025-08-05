@@ -15,6 +15,9 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<QuizResponse>({});
   const [loading, setLoading] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   // Handle radio button changes
   const handleRadioChange = (questionId: string, value: string) => {
@@ -61,7 +64,8 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
         setCurrentQuestion(currentQuestion + 2);
       }
     } else {
-      handleSubmit();
+      // Show email modal on last question instead of submitting directly
+      setShowEmailModal(true);
     }
   };
 
@@ -72,8 +76,22 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
     }
   };
 
+  // Handle email modal submission
+  const handleEmailSubmit = async () => {
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    
+    setEmailError('');
+    setShowEmailModal(false);
+    await handleSubmit(email);
+  };
+
   // Handle form submission
-  const handleSubmit = async () => {
+  const handleSubmit = async (userEmail?: string) => {
     setLoading(true);
     try {
       console.log('Starting analysis with answers:', answers);
@@ -109,6 +127,7 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
           body: JSON.stringify({
             surveyData: answers,
             results,
+            email: userEmail || null,
             timestamp: new Date().toISOString()
           })
         });
@@ -317,6 +336,35 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
       <div className={styles.disclaimer}>
         This assessment is for informational purposes only and should not replace professional medical advice.
       </div>
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.emailModal}>
+            <h3 className={styles.modalTitle}>Please enter your email to view your results.</h3>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleEmailSubmit();
+                }
+              }}
+              className={styles.emailInput}
+            />
+            {emailError && <p className={styles.emailError}>{emailError}</p>}
+            <button
+              onClick={handleEmailSubmit}
+              className={styles.emailSubmitButton}
+              disabled={loading}
+            >
+              {loading ? 'Submitting...' : 'Submit & View Results'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
