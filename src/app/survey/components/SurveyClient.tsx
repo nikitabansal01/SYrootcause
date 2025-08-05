@@ -289,7 +289,7 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
         </div>
       </div>
 
-            <div className={styles.navigation}>
+      <div className={styles.navigation}>
         {currentQuestion > 0 ? (
           <>
             <button
@@ -321,15 +321,13 @@ const SurveyClient: React.FC<SurveyClientProps> = ({ questions }) => {
             </button>
           </>
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-            <button
-              onClick={handleNext}
-              className={styles.nextButton}
-              disabled={!isCurrentQuestionAnswered() || loading}
-            >
-              Next →
-            </button>
-          </div>
+          <button
+            onClick={handleNext}
+            className={styles.nextButton}
+            disabled={!isCurrentQuestionAnswered() || loading}
+          >
+            Next →
+          </button>
         )}
       </div>
 

@@ -196,11 +196,15 @@
 
 .navigation {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   padding: 0 1rem;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .previousButton,
@@ -230,9 +234,14 @@
 }
 
 .nextButton {
-  background: linear-gradient(135deg, #A74BA5, #C49BE3);
+  background: linear-gradient(135deg, #C49BE3, #6E87E0);
   color: white;
-  box-shadow: 0 4px 12px rgba(167, 75, 165, 0.3);
+  box-shadow: 0 4px 12px rgba(196, 155, 227, 0.3);
+  border-radius: 50px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-width: 140px;
 }
 
 .nextButton:hover:not(:disabled) {
